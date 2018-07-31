@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Mirror</title>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css" />
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+		<link rel="stylesheet" href="assets/css/app.css">
+	</head>
+	<body>
+		<div id="mirror">
+			<div class="element centered">
+				<clock :tickrate="1000" :autoupdate="true"></clock>
+			</div>
+
+			<div class="element top-right">
+				<weather city="tucson" state="az"></weather>
+			</div>
+
+			<script type="text/template" id="clock-template">
+				<div class="clock-wrapper">
+					<div class="columns is-mobile">
+						<div class="column">
+							<span class="item hours" v-text="time.hours"></span>
+						</div>
+						<div class="column">
+							<span class="item minutes" v-text="time.minutes"></span>
+						</div>
+						<div class="column">
+							<span class="item seconds" v-text="time.seconds"></span>
+						</div>
+						<div class="column">
+							<span class="item ampm" v-text="time.ampm"></span>
+						</div>
+					</div>
+					<div class="columns is-mobile">
+						<div class="column">
+							<span class="item month" v-text="date.month"></span>
+						</div>
+						<div class="column">
+							<span class="item day" v-text="date.day"></span>
+						</div>
+						<div class="column">
+							<span class="item year" v-text="date.year"></span>
+						</div>
+						<div class="column">
+							<span class="item monthstring" v-text="monthString"></span>
+						</div>
+						<div class="column">
+							<span class="item weekstring" v-text="weekString"></span>
+						</div>
+					</div>
+				</div>
+			</script>
+
+			<script type="text/template" id="weather-template">
+				<div class="weather">
+					<div class="current">
+						<div v-text="current.code" class="iconcode"></div>
+						<div v-text="current.temp" class="temp"></div>
+						<div v-text="current.text" class="text"></div>
+					</div>
+					<ul class="forecast">
+						<li v-for="cast in forecast" class="cast">
+							<div :class="cast.code" class="iconcode"></div>
+							<div v-text="cast.date" class="date"></div>
+							<div v-text="cast.low" class="low"></div>
+							<div v-text="cast.high" class="high"></div>
+							<div v-text="cast.text" class="text"></div>
+						</li>
+					</ul>
+				</div>
+			</script>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+		<script src="assets/js/app.js"></script>
+	</body>
+</html>

@@ -1,0 +1,110 @@
+html, body {
+	background-color: #212127;
+	color: #d8d0be;
+}
+
+a {
+	color: #d8d0be;
+}
+	a:visited,
+	a:active,
+	a:hover {
+		color: #d8d0be;
+	}
+
+.element {
+	position: fixed;
+}
+	.element.centered {
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+	.element.top-centered {
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+	.element.top-right {
+		top: 0;
+		right: 0;
+	}
+	.element.top-left {
+		top: 0;
+		left: 0;
+	}
+	.element.bottom-centered {
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+	.element.bottom-right {
+		bottom: 0;
+		right: 0;
+	}
+	.element.bottom-left {
+		bottom: 0;
+		left: 0;
+	}
+
+
+.clock-wrapper {
+	display: block;
+	width: 100%;
+	position: relative;
+	text-align: center;
+}
+	.clock-wrapper {
+		display: block;
+	}
+		.clock-wrapper .item {
+			display: inline-block;
+			padding: 15px;
+			text-align: center;
+			vertical-align: top;
+		}
+			.clock-wrapper .item.hours {
+			}
+			.clock-wrapper .item.minutes {
+			}
+			.clock-wrapper .item.seconds {
+			}
+			.clock-wrapper .item.ampm {
+				text-transform: capitalize;
+			}
+
+	.clock-wrapper .date {
+		display: block;
+	}
+		.clock-wrapper .date .dateslot {
+			display: inline-block;
+			padding: 15px;
+			text-align: center;
+			vertical-align: top;
+		}
+
+
+.weather {
+}
+	.weather .current {
+		padding: 15px;
+		background-color: rgba(216, 208, 190, 0.1);
+	}
+
+	.weather .forecast {}
+
+	.weather .iconcode {
+		display: inline-block;
+	}
+		.weather .iconcode.sunny {
+			content: '\f185';
+		}
+		.weather .iconcode.rain {
+			content: '\f0e9';
+		}
+		.weather .iconcode.lighning {
+			content: '\f0e7';
+		}
+		.weather .iconcode.cloudy {
+			content: '\f0c2';
+		}
