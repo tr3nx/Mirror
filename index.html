@@ -41,6 +41,10 @@
 				<countdown></countdown>
 			</div>
 
+			<div class="element left-centered">
+				<calendar></calendar>
+			</div>
+
 			<script type="text/template" id="clock-template">
 				<div class="clock-wrapper">
 					<div class="columns is-mobile">
@@ -120,6 +124,12 @@
 				</div>
 			</script>
 
+			<script type="text/template" id="alert-template">
+				<div class="alert">
+					<h1 v-text="message"></h1>
+				</div>
+			</script>
+
 			<script type="text/template" id="countdown-template">
 				<div class="countdown">
 					<div class="columns is-mobile">
@@ -136,9 +146,21 @@
 				</div>
 			</script>
 
-			<script type="text/template" id="alert-template">
-				<div class="alert">
-					<h1 v-text="message"></h1>
+			<script type="text/template" id="calendar-template">
+				<div class="calendar">
+					<table>
+						<thead>
+							<tr>
+								<td v-for="num in 7">
+									<span v-text="weekdayString(num, true)"></span>
+								</td>
+							</tr>
+						</thead>
+						<tr>
+							<td>
+							</td>
+						</tr>
+					</table>
 				</div>
 			</script>
 		</div>

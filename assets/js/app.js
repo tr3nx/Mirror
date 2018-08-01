@@ -138,6 +138,7 @@ Vue.component('weather', {
 
 Vue.component('crypto', {
 	template: '#crypto-template',
+	delimiters: ['${', '}'],
 	props: ['symbol'],
 	data: function() {
 		return {
@@ -192,50 +193,9 @@ Vue.component('crypto', {
 	}
 });
 
-Vue.component('countdown', {
-	template: '#countdown-template',
-	data: function() {
-		return {
-			remaining: {},
-			deadline: {},
-			hours:   0,
-			minutes: 0,
-			seconds: 0,
-			ticker: 0
-		};
-	},
-	created: function() {
-		this.init();
-	},
-	beforeDestroy: function() {
-		clearInterval(this.ticker);
-	},
-	methods: {
-		init: function() {
-			this.deadline = moment().days(4).hours(4).minutes(42).seconds(16);
-			this.ticker = setInterval(function() {
-				this.remaining = this.deadline.toNow("MM");
-			}.bind(this), 1000);
-		}
-	},
-	watch: {
-		remaining: function(left) {
-			console.log(left);
-			// this.hours = left.format('H');
-		}
-	}
-});
-
-Vue.component('alert', {
-	template: '#alert-template',
-	props: ['message'],
-	data: function() {
-		return {};
-	}
-});
-
 Vue.component('notes', {
 	template: '#notes-template',
+	delimiters: ['${', '}'],
 	props: {
 		listid: Number
 	},
@@ -264,9 +224,145 @@ Vue.component('notes', {
 	}
 });
 
-// Vue.component('special-events', {
-// 	template: '#special-events-template'
-// });
+Vue.component('alert', {
+	template: '#alert-template',
+	delimiters: ['${', '}'],
+	props: ['message'],
+	data: function() {
+		return {};
+	}
+});
+
+Vue.component('countdown', {
+	template: '#countdown-template',
+	delimiters: ['${', '}'],
+	data: function() {
+		return {
+			remaining: {},
+			deadline: {},
+			hours:   0,
+			minutes: 0,
+			seconds: 0,
+			ticker: 0
+		};
+	},
+	created: function() {
+		this.init();
+	},
+	beforeDestroy: function() {
+		clearInterval(this.ticker);
+	},
+	methods: {
+		init: function() {
+			// this.deadline = moment().days(4).hours(4).minutes(42).seconds(16);
+			// this.ticker = setInterval(function() {
+			// 	this.remaining = this.deadline.toNow("MM");
+			// }.bind(this), 1000);
+		}
+	},
+	watch: {
+		remaining: function(left) {
+			
+			// this.hours = left.format('H');
+		}
+	}
+});
+
+Vue.component('calendar', {
+	template: '#calendar-template',
+	delimiters: ['${', '}'],
+	data: function() {
+		return {
+			calendar: {},
+			currentdate: {}
+		};
+	},
+	created: function() {
+		this.init();
+	},
+	methods: {
+		init: function() {
+			this.currentdate = moment();
+			this.compileCalendar();
+			this.fetchEvents();
+		},
+		fetchEvents: function() {
+			axios
+				.get('http://mindescalation.com/')
+				.then(function(resp) {
+					resp.data = {
+						14: [
+							{
+								title: 'testing',
+								description: 'somethingasd ads adasdas adsad',
+								category: 1,
+								start: moment(),
+								end: moment().days(5)
+							},
+							{
+								title: 'more testing',
+								description: 'adasdas ads adsad somethingasd',
+								category: 4,
+								start: moment(),
+								end: moment().days(9)
+							}
+						],
+						22: [
+							{
+								title: 'random things',
+								description: 'some more random things',
+								category: 2,
+								start: moment(),
+								end: moment().days(1)
+							}
+						],
+						2: [
+							{
+								title: 'to asdk2 wok',
+								description: 'some asdk2 wok',
+								category: 2,
+								start: moment(),
+								end: moment()
+							}
+						]
+					};
+					this.assignEvents(resp.data);
+				}.bind(this))
+				.catch(function(err) {
+					console.log('error fetching calendar: ', err);
+				});
+		},
+		compileCalendar: function() {
+			this.daysInMonth(7).forEach(function(item) {
+				this.calendar[Number(item.format("D"))] = [];
+			}.bind(this));
+		},
+		assignEvents: function(events) {
+			Object.keys(events).forEach(function(day) {
+				var temp = [];
+				events[day].forEach(function(event) {
+					temp.push(event);
+				});
+				this.calendar[day] = temp;
+			}.bind(this));
+			console.log(this.calendar);
+		},
+		daysInMonth: function(month) {
+			var daysInMonth = moment().month(month-1).daysInMonth();
+			var arrDays = [];
+			while (daysInMonth) {
+				var current = moment().date(daysInMonth);
+				arrDays.push(current);
+				daysInMonth--;
+			}
+			return arrDays;
+		},
+		weekdayString: function(day, trim) {
+			var weekday = moment().day(day).format('dddd');
+			return (trim) ? weekday.substr(0, 3) : weekday;
+		}
+	}
+});
 
 var mirror = new Vue({
 	el: '#mirror',
