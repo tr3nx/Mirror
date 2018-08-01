@@ -136,6 +136,138 @@ Vue.component('weather', {
 	}
 });
 
+Vue.component('crypto', {
+	template: '#crypto-template',
+	props: ['symbol'],
+	data: function() {
+		return {
+			id: 0,
+			price: 0,
+			vol: 0,
+			change: 0,
+			marketcap: 0
+		};
+	},
+	created: function() {
+		this.init();
+	},
+	methods: {
+		init: function() {
+			this.setTickerId();
+		},
+		fetchTicker: function(id) {
+			axios
+				.get("https://api.coinmarketcap.com/v2/ticker/" + id + "/")
+				.then(function(resp) {
+					var usd = resp.data.data.quotes.USD;
+					if (usd === undefined) {
+						throw "no usd data available";
+					}
+					this.price = Number(usd.price.toFixed(2));
+					this.vol = Number(usd.volume_24h.toFixed(2));
+					this.marketcap = Number(usd.market_cap);
+					this.change = Number(usd.percent_change_24h);
+				}.bind(this))
+				.catch(function(err) {
+					console.log('failed to fetch ticker: ', err);
+				});
+		},
+		setTickerId: function() {
+			axios
+				.get("https://api.coinmarketcap.com/v2/listings/")
+				.then(function(resp) {
+					this.id = resp.data.data.filter(function(s) {
+						return s.symbol === this.symbol;
+					}.bind(this))[0].id;
+				}.bind(this))
+				.catch(function(err) {
+					console.log('failed to fetch tickers: ', err);
+				});
+		}
+	},
+	watch: {
+		id: function(id) {
+			this.fetchTicker(id);
+		}
+	}
+});
+
+Vue.component('countdown', {
+	template: '#countdown-template',
+	data: function() {
+		return {
+			remaining: {},
+			deadline: {},
+			hours:   0,
+			minutes: 0,
+			seconds: 0,
+			ticker: 0
+		};
+	},
+	created: function() {
+		this.init();
+	},
+	beforeDestroy: function() {
+		clearInterval(this.ticker);
+	},
+	methods: {
+		init: function() {
+			this.deadline = moment().days(4).hours(4).minutes(42).seconds(16);
+			this.ticker = setInterval(function() {
+				this.remaining = this.deadline.toNow("MM");
+			}.bind(this), 1000);
+		}
+	},
+	watch: {
+		remaining: function(left) {
+			console.log(left);
+			// this.hours = left.format('H');
+		}
+	}
+});
+
+Vue.component('alert', {
+	template: '#alert-template',
+	props: ['message'],
+	data: function() {
+		return {};
+	}
+});
+
+Vue.component('notes', {
+	template: '#notes-template',
+	props: {
+		listid: Number
+	},
+	data: function() {
+		return {
+			notes: []
+		};
+	},
+	created: function() {
+		this.init();
+	},
+	methods: {
+		init: function() {
+			this.fetchNotes(this.listid);
+		},
+		fetchNotes: function(id) {
+			axios
+				.get('http://mindescalation.com:6002')
+				.then(function(resp) {
+					this.notes = resp.data;
+				}.bind(this))
+				.catch(function(err) {
+					console.log('error querying notes: ', err);
+				});
+		}
+	}
+});
+
+// Vue.component('special-events', {
+// 	template: '#special-events-template'
+// });
+
 var mirror = new Vue({
 	el: '#mirror',
 	delimiters: ['${', '}']
