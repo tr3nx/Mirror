@@ -44,7 +44,7 @@ Vue.component('clock', {
 				hours:   this._getHours,
 				minutes: date.getMinutes(),
 				seconds: date.getSeconds(),
-				ampm:    this._getAmpm
+				ampm:    this._getAmPm
 			};
 
 			this.date = {
@@ -54,19 +54,11 @@ Vue.component('clock', {
 			};
 		},
 		_autoupdate: function() {
-			this.ticker = setInterval(function() { this.update(); }.bind(this), this.tickrate);
+			this.tickrate = this.tickrate || 1000;
+			this.ticker = setInterval(() => { this.update() }, this.tickrate);
 		}
 	},
 	computed: {
-		_getHours: function() {
-			return this.currentdate.getHours() % 12 || 12;
-		},
-		_getMonth: function() {
-			return this.currentdate.getMonth() + 1;
-		},
-		_getAmpm: function() {
-			return (this.currentdate.getHours() < 12) ? 'am' : 'pm';
-		},
 		timeString: function() {
 			return this.currentdate.toTimeString();
 		},
@@ -78,6 +70,15 @@ Vue.component('clock', {
 		},
 		weekString: function() {
 			return this.currentdate.toLocaleString("en-us", { weekday: "long" });
+		},
+		_getHours: function() {
+			return this.currentdate.getHours() % 12 || 12;
+		},
+		_getMonth: function() {
+			return this.currentdate.getMonth() + 1;
+		},
+		_getAmPm: function() {
+			return (this.currentdate.getHours() < 12) ? 'am' : 'pm';
 		}
 	}
 });
@@ -109,27 +110,23 @@ Vue.component('weather', {
 		},
 		update: function() {
 			axios
-				.get(this.buildQuery({ city: this.city, state: this.state, units: this._units }))
-				.then(function(resp) {
+				.get(`https://query.yahooapis.com/v1/public/yql?q=select item.condition, item.forecast from weather.forecast where woeid in (select woeid from geo.places(1) where text="${this.city}, ${this.state}") and u="${this.units}"&format=json`)
+				.then(resp => {
 					if (resp.data.query === undefined || resp.data.query.count === 0) {
 						throw "no weather data found";
 					}
-					var results = resp.data.query.results.channel;
-					this.forecast = results.map(function(cast) { return cast.item.forecast; });
+					let results = resp.data.query.results.channel;
+					this.forecast = results.map(c => c.item.forecast);
 					this.current = results[0].item.condition;
-				}.bind(this))
-				.catch(function(err) {
-					console.log("Weather api call error: ", err);
-				});
+				})
+				.catch(err => { console.log(`Weather api call error: ${err}`) });
 		},
 		_autoupdate: function() {
-			this.ticker = setInterval(function() { this.update(); }.bind(this), this.tickrate);
+			this.tickrate = this.tickrate || 30000;
+			this.ticker = setInterval(() => { this.update() }, this.tickrate);
 		}
 	},
 	computed: {
-		buildQuery: function() {
-			return _.template('https://query.yahooapis.com/v1/public/yql?q=select item.condition, item.forecast from weather.forecast where woeid in (select woeid from geo.places(1) where text="<%= city %>, <%= state %>") and u="<%= units %>"&format=json');
-		},
 		_units: function() {
 			return (this.units !== "C") ? "F" : "C";
 		}
@@ -158,32 +155,23 @@ Vue.component('crypto', {
 		},
 		fetchTicker: function(id) {
 			axios
-				.get("https://api.coinmarketcap.com/v2/ticker/" + id + "/")
-				.then(function(resp) {
+				.get(`https://api.coinmarketcap.com/v2/ticker/${id}/`)
+				.then(resp => {
 					var usd = resp.data.data.quotes.USD;
-					if (usd === undefined) {
-						throw "no usd data available";
-					}
+					if (usd === undefined) { throw "no usd data available" }
+
 					this.price = Number(usd.price.toFixed(2));
 					this.vol = Number(usd.volume_24h.toFixed(2));
 					this.marketcap = Number(usd.market_cap);
 					this.change = Number(usd.percent_change_24h);
-				}.bind(this))
-				.catch(function(err) {
-					console.log('failed to fetch ticker: ', err);
-				});
+				})
+				.catch(err => { console.log(`failed to fetch ticker: ${err}`) });
 		},
 		setTickerId: function() {
 			axios
 				.get("https://api.coinmarketcap.com/v2/listings/")
-				.then(function(resp) {
-					this.id = resp.data.data.filter(function(s) {
-						return s.symbol === this.symbol;
-					}.bind(this))[0].id;
-				}.bind(this))
-				.catch(function(err) {
-					console.log('failed to fetch tickers: ', err);
-				});
+				.then(resp => { this.id = resp.data.data.filter(s => s.symbol === this.symbol)[0].id })
+				.catch(err => { console.log(`failed to fetch tickers: ${err}`) });
 		}
 	},
 	watch: {
@@ -289,7 +277,7 @@ Vue.component('calendar', {
 		fetchEvents: function() {
 			axios
 				.get('http://mindescalation.com/')
-				.then(function(resp) {
+				.then(resp => {
 					resp.data = {
 						14: [
 							{
@@ -327,35 +315,29 @@ Vue.component('calendar', {
 						]
 					};
 					this.assignEvents(resp.data);
-				}.bind(this))
-				.catch(function(err) {
-					console.log('error fetching calendar: ', err);
-				});
+				})
+				.catch(err => { console.log(`error fetching calendar: ${err}`) });
 		},
 		compileCalendar: function() {
-			this.daysInMonth(7).forEach(function(item) {
-				this.calendar[Number(item.format("D"))] = [];
-			}.bind(this));
+			this.daysInMonth(7).forEach(i => {
+				this.calendar[Number(i.format("D"))] = [];
+			});
 		},
 		assignEvents: function(events) {
-			Object.keys(events).forEach(function(day) {
-				var temp = [];
-				events[day].forEach(function(event) {
-					temp.push(event);
-				});
-				this.calendar[day] = temp;
-			}.bind(this));
-			console.log(this.calendar);
+			Object.keys(events).forEach(day => {
+				let tmp = [];
+				events[day].forEach(e => tmp.push(e));
+				this.calendar[day] = tmp;
+			});
 		},
 		daysInMonth: function(month) {
-			var daysInMonth = moment().month(month-1).daysInMonth();
-			var arrDays = [];
-			while (daysInMonth) {
-				var current = moment().date(daysInMonth);
-				arrDays.push(current);
-				daysInMonth--;
+			var daysinmonth = moment().month(month - 1).daysInMonth();
+			var days = [];
+			while (daysinmonth) {
+				days.push(moment().date(daysinmonth));
+				daysinmonth--;
 			}
-			return arrDays;
+			return days;
 		},
 		weekdayString: function(day, trim) {
 			var weekday = moment().day(day).format('dddd');
